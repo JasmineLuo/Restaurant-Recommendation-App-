@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock title %}
+
+{% block head %}
+    {{ super() }}
+{% endblock head %}
+
+{% block content %}
+    {% set error = get_flashed_messages() %}
+    {% if error %}
+        <script>
+            window.onload = function() {
+                document.getElementById('error-modal-btn').click();
+            }
+        </script>
+    {% endif %}
+
+    <nav class="navbar navbar-trans navbar-fixed-up" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapsible">
+                    <!-- draw three horizontal lines on the button -->
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand text-danger" href="#">D5</a>
+            </div>
+
+            <div class="navbar-collapse collapse" id="navbar-collapsible">
+                <!-- the real navbar -->
+                <ul class="nav navbar navbar-left">
+                    <li><a href="/dashboard#current-appointment">Current Appointment</a></li>
+                    <li><a href="/dashboard#new-appointment">Set New Appointment</a></li>
+                    <li><a href="/profile">Profile</a></li>
+                    <li><a href="/logout">Log Out</a></li>
+                    <li>&nbsp;</li>
+                </ul>
+            </div>
+        </div>  <!-- container -->
+    </nav>
+
+    <section class="container-field" id="user-avatar">
+        <div class="container v-center">
+            <div class="row text-center">
+                <div class="col-md-10 col-md-offset-1">
+                    <!-- The user avatar -->
+                    <div class="text-center">
+                        <img src="{{ avatar }}" class="img-circle">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container-field">
+        <div class="container v-center">
+            <div class="row text-center">
+                <div class="col-md-10 col-md-offset-1">
+                    <h1 class="text-center" id="current-appointment">Look at current appointment!</h1>
+                    {% if not person %}
+                        {% set action = "#no-matching-modal" %}
+                    {% elif status == True %}
+                        <!-- allow accept/decline -->
+                        {% set action = "#matching-modal" %}
+                    {% elif status == False %}
+                        <!-- has sent feedback: disallow accept/decline -->
+                        {% set action = "#complete-matching-modal" %}
+                    {% endif %}
+                    <a href="#" class="btn btn-danger btn-lg btn-huge lato" data-toggle="modal" data-target={{ action }}>View</a>
+
+                    <h1 class="text-center" id="new-appointment">No good matching? Fire a new one!</h1>
+                    <a href="#" class="btn btn-danger btn-lg btn-huge lato" data-toggle="modal" data-target="#newproposal-modal">New</a>
+                    <!-- a hidden button to trigger display of error info -->
+                    <a href="#" class="btn btn-danger btn-lg btn-huge lato" style="display: none" data-toggle="modal" data-target="#error-modal" id="error-modal-btn">Error</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="no-matching-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <img src="{{ avatar }}" class="img-circle">
+                        <br>Current Appointment
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    <h2 class="text-center">You haven't match any user yet...</h2>
+                    <h2 class="text-center">Checkout later or set a new proposal!</h2>
+                </div>  <!-- modal-body -->
+            </div>
+        </div>
+    </div>
+
+    <div id="matching-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <img src="{{ avatar }}" class="img-circle">
+                        <br>Current Appointment
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    {% if person %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>{{ person["name"] }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gender</td>
+                                    <td>{{ person["gender"] }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Fackbook Page</td>
+                                    <td>{{ person["facebook"] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-center">
+                        <br>
+                        <a href="/acceptproposal?friendid={{ person["id"] }}" class="btn btn-success btn-lg btn-huge lato">Accept</a>
+                        <a href="/declineproposal?friendid={{ person["id"] }}" class="btn btn-danger btn-lg btn-huge lato">Decline</a>
+                    </p>
+                    {% endif %}
+                </div>  <!-- modal-body -->
+            </div>
+        </div>
+    </div>
+
+    <div id="complete-matching-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <img src="{{ avatar }}" class="img-circle">
+                        <br>Current Appointment
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    <div class="table-responsive">
+                        {% if person %}
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>{{ person["name"] }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Gender</td>
+                                    <td>{{ person["gender"] }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone</td>
+                                    <td>{{ person["phone"] }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Fackbook Page</td>
+                                    <td>{{ person["facebook"] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <div class="table-responsive">
+                        {% if restaurants %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>Star</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in restaurants %}
+                                    <tr>
+                                        <td>{{ r["name"] }}</td>
+                                        <td>{{ r["address"] }}</td>
+                                        <td>{{ r["star"] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <h2 class="text-center">Waiting for the other to accept...</h2>
+                        {% endif %}
+                    </div>
+                </div>  <!-- modal-body -->
+            </div>
+        </div>
+    </div>
+
+    <div id="newproposal-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <img src="{{ avatar }}" class="img-circle">
+                        <br>New Appointment
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    <form role="form" action="/newproposal" method="post" class="col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-0">
+                        <div class="form-group text-center">
+                            <label class="lead">Date</label>
+                            <input type="date" class="form-inline input-lg" name="date">
+                        </div>
+                        <div class="form-group text-center">
+                            <label class="lead">Start Time</label>
+                            <input type="number" min="0" max="23" step="1" class="form-inline input-lg" name="starthour">
+                            <label>:</label>
+                            <input type="number" min="0" max="59" step="1" class="form-inline input-lg" name="startmin">
+                        </div>
+                        <div class="form-group text-center">
+                            <label class="lead">End Time</label>
+                            <input type="number" min="0" max="23" step="1" class="form-inline input-lg" name="endhour">
+                            <label>:</label>
+                            <input type="number" min="0" max="59" step="1" class="form-inline input-lg" name="endmin">
+                        </div>
+                        <div class="form-group">
+                            <label class="lead">Wanted Food Type</label>
+                            <select class="form-control input-lg" name="foodtype">
+                                <option value="undefined">(Select a type of food)</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="bar">Bar</option>
+                                <option value="fast food">Fast Food</option>
+                                <option value="sandwish">Sandwish</option>
+                                <option value="pizza">Pizza</option>
+                                <option value="chinese">Chinese</option>
+                                <option value="japanese">Japanese</option>
+                                <option value="indian">Indian</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="lead">Distance Range (KM From Current Location)</label>
+                            <input type="number" min="1" max="50" step="1" class="form-inline input-lg" name="distance">
+                        </div>
+                        <div class="form-group">
+                            <label class="lead">Budget</label>
+                            <select class="form-control input-lg" name="budget">
+                                <option value="1">$</option>
+                                <option value="2">$$</option>
+                                <option value="3">$$$</option>
+                                <option value="4">$$$$</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="lead">Preferred Gender</label>
+                            <select class="form-control input-lg" name="gender">
+                                <option value="no">no preference</option>
+                                <option value="male">male</option>
+                                <option value="female">female</option>
+                            </select>
+                        </div>
+                        <!-- add the geography info -->
+                        <input type="hidden" name="longitude" id="longitude">
+                        <input type="hidden" name="latitude" id="latitude">
+                        <script>
+                            var genLongitude = function(minVal, maxVal) {
+                                var rand = Math.random() * (maxVal - minVal) + minVal;
+                                return rand;
+                            }
+                            
+                            var genLatitude = function(minVal, maxVal) {
+                                var rand = Math.random() * (maxVal - minVal) + minVal;
+                                return rand;
+                            }
+
+                            document.getElementById("longitude").value = genLongitude(-112.10, -112.03)
+                            document.getElementById("latitude").value = genLatitude(33.41, 33.45)
+                            console.log(document.getElementById("longitude").value)
+                            console.log(document.getElementById("latitude").value)
+                        </script>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-danger btn-lg btn-block">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"></div>
+                <div class="modal-body row">
+                    {% if error %}
+                        <h2 style="text-align: center">{{ error[0] }}</h2>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block footer %}
+    <div class="container">
+        {{ super() }}
+    </div>
+{% endblock footer %}
+

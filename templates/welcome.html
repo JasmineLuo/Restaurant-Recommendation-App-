@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Welcome to D5 Dinning Recommender{% endblock title %}
+
+{% block head %}
+    {{ super() }}
+{% endblock head %}
+
+{% block content %}
+    {% set error = get_flashed_messages() %}
+    {% if error %}
+        <script>
+            window.onload = function() {
+                document.getElementById('error-modal-btn').click();
+            }
+        </script>
+    {% endif %}
+
+    <nav class="navbar navbar-trans navbar-fixed-up" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapsible">
+                    <!-- draw three horizontal lines on the button -->
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand text-danger" href="#">D5</a>
+            </div>
+
+            <div class="navbar-collapse collapse" id="navbar-collapsible">
+                <!-- the real navbar -->
+                <ul class="nav navbar navbar-left">
+                    <li><a href="/#welcome-front-page">Welcome</a></li>
+                    <li>&nbsp;</li>
+                </ul>
+            </div>
+        </div>  <!-- container -->
+    </nav>
+
+    <section class="container-fluid" id="welcome-front-page">
+        <div class="v-center">
+            <h1 class="text-center">New Dinning Experience</h1>
+            <h2 class="text-center lato animate slideInDown">Intelligent Restaurant Recommender System</h2>
+            <p class="text-center">
+                <br>
+                <a href="#" class="btn btn-danger btn-lg btn-huge lato" data-toggle="modal" data-target="#signup-modal">Sign Up</a>
+                <a href="#" class="btn btn-danger btn-lg btn-huge lato" data-toggle="modal" data-target="#signin-modal">Sign In</a>
+                <!-- a hidden button to trigger display of error info -->
+                <a href="#" class="btn btn-danger btn-lg btn-huge lato" style="display: none" data-toggle="modal" data-target="#error-modal" id="error-modal-btn">Error</a>
+            </p>
+        </div>
+    </section>
+
+    <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <img src="http://placehold.it/110" class="img-circle">
+                        <br>Join
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    <h6 class="text-center">COMPLETE FIELDS TO SIGN UP</h6>
+                    <form role="form" action="/signupauth" method="post" class="col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-0">
+                        <div class="form-group">
+                            <input type="email" class="form-control input-lg" name="email" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control input-lg" name="username" placeholder="User Name">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control input-lg" name="nickname" placeholder="Nick Name">
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" class="form-control input-lg" name="phone" placeholder="Phone Number ###-###-####">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control input-lg" name="gender">
+                                <option value="undefined">(Select a Gender)</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control input-lg" name="facebook" placeholder="Facebook Link">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control input-lg" name="password" placeholder="Password">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control input-lg" name="cpassword" placeholder="Confirm Password">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-danger btn-lg btn-block">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="signin-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h2 class="text-center">
+                        <br>Login
+                    </h2>
+                </div>
+                <div class="modal-body row">
+                    <h6 class="text-center">COMPLETE FIELDS TO SIGN IN</h6>
+                    <form role="form" action="/loginauth" method="post" class="col-md-10 col-md-offset-1 col-xs-12 col-xs-offset-0">
+                        <div class="form-group">
+                            <input type="email" class="form-control input-lg" name="email" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control input-lg" name="password" placeholder="Password">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-danger btn-lg btn-block">Sign In</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-body row text-center">
+                    <a href="/forgetpassword">forget password?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="my-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"></div>
+                <div class="modal-body row">
+                    {% if error %}
+                        <h2 style="text-align: center">{{ error[0] }}</h2>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block footer %}
+    <div class="container">
+        {{ super() }}
+    </div>
+{% endblock footer %}
+
